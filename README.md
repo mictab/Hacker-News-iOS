@@ -10,4 +10,4 @@ Wouldn't you like to be able to read the news in your phone, in an app?? The ans
 A native iOS app (or soon to be!)
 
 ## Group Members
-Michel Tabari ([@mictab](https://github.com/mictab) and Moa Nyman ([@botronic](https://github.com/botronic)
+Michel Tabari ([@mictab](https://github.com/mictab)) and Moa Nyman ([@botronic](https://github.com/botronic))
