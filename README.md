@@ -1,7 +1,7 @@
 # Hacker News iOS app
 
 ## Introduction
-If you're a real computer scientist of course you're already reading the news. The news, you ask? Hacker News of course!
+If you're a real computer scientist of course you're already reading the news.
 
 Wouldn't you like to be able to read the news in your phone, in an app?? The answer is yes.
 
