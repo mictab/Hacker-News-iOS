@@ -9,6 +9,9 @@
 import UIKit
 
 class StoryTableViewController: UITableViewController {
+    
+    // MARK: Properties
+    var stories = [Story]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,6 +21,7 @@ class StoryTableViewController: UITableViewController {
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+        loadMockStories()
     }
 
     override func didReceiveMemoryWarning() {
@@ -34,18 +38,29 @@ class StoryTableViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 0
+        return stories.count
+    }
+    
+    func loadMockStories() {
+        let s1 = Story(title: "Trololol", url: "http://tabari.se", author: "Moa Nyman", score: 3)
+        let s2 = Story(title: "Nehedu", url: "http://kth.se", author: "Michel Tabari", score: 3)
+        let s3 = Story(title: "Maaaat", url: "http://svd.se", author: "Mowgli", score: 3)
+        
+        stories += [s1, s2, s3]
     }
 
-    /*
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath)
+        let identifier = "StoryTableViewCell"
+        let cell = tableView.dequeueReusableCellWithIdentifier(identifier, forIndexPath: indexPath) as! StoryTableViewCell
+        let story = stories[indexPath.row]
+        
+        cell.titleLabel.text = story.title
+        cell.detailLabel.text = "\(story.score) by \(story.author)"
 
         // Configure the cell...
 
         return cell
     }
-    */
 
     /*
     // Override to support conditional editing of the table view.

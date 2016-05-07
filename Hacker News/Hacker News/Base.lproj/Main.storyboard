@@ -5,7 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
     </dependencies>
     <scenes>
-        <!--Story Table View Controller-->
+        <!--HN-->
         <scene sceneID="sYC-zB-ILu">
             <objects>
                 <tableViewController id="B4e-bJ-MTh" customClass="StoryTableViewController" customModule="Hacker_News" customModuleProvider="target" sceneMemberID="viewController">
@@ -14,7 +14,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="StoryTableViewCell" rowHeight="70" id="sUm-TE-0W6">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="StoryTableViewCell" rowHeight="70" id="sUm-TE-0W6" customClass="StoryTableViewCell" customModule="Hacker_News" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="92" width="600" height="70"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="sUm-TE-0W6" id="b6o-Ih-AId">
@@ -35,6 +35,10 @@
                                         </label>
                                     </subviews>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="detailLabel" destination="AND-5V-3Vs" id="XPu-au-X1b"/>
+                                    <outlet property="titleLabel" destination="2cE-bB-hlL" id="Be5-xq-H41"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -42,7 +46,7 @@
                             <outlet property="delegate" destination="B4e-bJ-MTh" id="Hrc-0f-1LR"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="lUx-nJ-fMf"/>
+                    <navigationItem key="navigationItem" title="HN" id="lUx-nJ-fMf"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="giO-JU-NmU" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
