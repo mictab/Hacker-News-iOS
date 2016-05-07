@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import SafariServices
 
-class StoryTableViewController: UITableViewController {
+class StoryTableViewController: UITableViewController, SFSafariViewControllerDelegate {
     
     // MARK: Properties
     var stories = [Story]()
@@ -61,6 +62,19 @@ class StoryTableViewController: UITableViewController {
         // Configure the cell...
 
         return cell
+    }
+    
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        let story = stories[indexPath.row]
+        let url = story.url
+        let webViewController = SFSafariViewController(URL: NSURL(string: url)!, entersReaderIfAvailable: true)
+        webViewController.delegate = self
+        presentViewController(webViewController, animated: true, completion: nil)
+    }
+    
+    func safariViewControllerDidFinish(controller: SFSafariViewController) {
+        dismissViewControllerAnimated(true, completion: nil)
     }
 
     /*
