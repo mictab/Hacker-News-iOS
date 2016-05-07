@@ -12,10 +12,11 @@ class StoryTableViewController: UITableViewController {
     
     // MARK: Properties
     var stories = [Story]()
+    var greyishTint = UIColor(red: 246/255.0, green: 246/255.0, blue: 239/255.0, alpha: 1.0)
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        navigationController?.navigationBar.barTintColor = greyishTint
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
