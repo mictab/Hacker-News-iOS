@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D0315A261CDDF1F5007B8B41 /* Story.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0315A251CDDF1F5007B8B41 /* Story.swift */; };
+		D0315A281CDDF279007B8B41 /* StoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0315A271CDDF279007B8B41 /* StoryTableViewCell.swift */; };
 		D0468BBF1CD95DBF00DBF854 /* StoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0468BBE1CD95DBF00DBF854 /* StoryTableViewController.swift */; };
 		D0DB73FA1CD75C4A003A6EA6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0DB73F91CD75C4A003A6EA6 /* AppDelegate.swift */; };
 		D0DB73FF1CD75C4A003A6EA6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0DB73FD1CD75C4A003A6EA6 /* Main.storyboard */; };
@@ -26,6 +28,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D0315A251CDDF1F5007B8B41 /* Story.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Story.swift; sourceTree = "<group>"; };
+		D0315A271CDDF279007B8B41 /* StoryTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoryTableViewCell.swift; sourceTree = "<group>"; };
 		D0468BBE1CD95DBF00DBF854 /* StoryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoryTableViewController.swift; sourceTree = "<group>"; };
 		D0DB73F61CD75C4A003A6EA6 /* Hacker News.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hacker News.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0DB73F91CD75C4A003A6EA6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -78,8 +82,10 @@
 			isa = PBXGroup;
 			children = (
 				D0468BBE1CD95DBF00DBF854 /* StoryTableViewController.swift */,
+				D0315A251CDDF1F5007B8B41 /* Story.swift */,
 				D0DB73F91CD75C4A003A6EA6 /* AppDelegate.swift */,
 				D0DB73FD1CD75C4A003A6EA6 /* Main.storyboard */,
+				D0315A271CDDF279007B8B41 /* StoryTableViewCell.swift */,
 				D0DB74001CD75C4A003A6EA6 /* Assets.xcassets */,
 				D0DB74021CD75C4A003A6EA6 /* LaunchScreen.storyboard */,
 				D0DB74051CD75C4A003A6EA6 /* Info.plist */,
@@ -199,6 +205,8 @@
 			files = (
 				D0DB73FA1CD75C4A003A6EA6 /* AppDelegate.swift in Sources */,
 				D0468BBF1CD95DBF00DBF854 /* StoryTableViewController.swift in Sources */,
+				D0315A261CDDF1F5007B8B41 /* Story.swift in Sources */,
+				D0315A281CDDF279007B8B41 /* StoryTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
