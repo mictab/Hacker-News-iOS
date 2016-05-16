@@ -22,6 +22,9 @@
                                 <segment title="Favorites"/>
                                 <segment title="Read Later"/>
                             </segments>
+                            <connections>
+                                <action selector="changeStoryType:" destination="B4e-bJ-MTh" eventType="valueChanged" id="gkj-h2-41N"/>
+                            </connections>
                         </segmentedControl>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="StoryTableViewCell" rowHeight="55" id="sUm-TE-0W6" customClass="StoryTableViewCell" customModule="Hacker_News" customModuleProvider="target">
@@ -31,14 +34,14 @@
                                     <rect key="frame" x="0.0" y="0.0" width="567" height="54.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2cE-bB-hlL">
-                                            <rect key="frame" x="8" y="8" width="584" height="21"/>
+                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2cE-bB-hlL">
+                                            <rect key="frame" x="8" y="8" width="340" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AND-5V-3Vs">
-                                            <rect key="frame" x="8" y="26" width="584" height="21"/>
+                                            <rect key="frame" x="8" y="26" width="559" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
@@ -56,9 +59,26 @@
                             <outlet property="delegate" destination="B4e-bJ-MTh" id="Hrc-0f-1LR"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="HN" id="lUx-nJ-fMf"/>
+                    <navigationItem key="navigationItem" title="HN" id="lUx-nJ-fMf">
+                        <barButtonItem key="rightBarButtonItem" title="Scroll to top" id="hDV-b6-XH6">
+                            <connections>
+                                <action selector="scrollToTop:" destination="B4e-bJ-MTh" id="RQS-We-q3x"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="searchDisplayController" destination="MPv-t1-03D" id="Duq-jX-zxI"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="giO-JU-NmU" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <searchDisplayController id="MPv-t1-03D">
+                    <connections>
+                        <outlet property="delegate" destination="B4e-bJ-MTh" id="Im2-Lr-nCK"/>
+                        <outlet property="searchContentsController" destination="B4e-bJ-MTh" id="oPT-13-cQH"/>
+                        <outlet property="searchResultsDataSource" destination="B4e-bJ-MTh" id="yKd-XD-x9C"/>
+                        <outlet property="searchResultsDelegate" destination="B4e-bJ-MTh" id="JZL-f5-kuX"/>
+                    </connections>
+                </searchDisplayController>
             </objects>
             <point key="canvasLocation" x="585" y="439"/>
         </scene>

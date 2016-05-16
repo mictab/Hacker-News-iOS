@@ -8,15 +8,19 @@
 
 import UIKit
 
+struct Colors {
+    static let greyishTint = UIColor(red: 246/255.0, green: 246/255.0, blue: 239/255.0, alpha: 1.0)
+    static let hackerTint = UIColor(red: 255/255.0, green: 102/255.0, blue: 0, alpha: 1.0)
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    var globalTint = UIColor(red: 255/255.0, green: 102/255.0, blue: 0, alpha: 1.0)
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
-        window?.tintColor = globalTint
+        window?.tintColor = Colors.hackerTint
         return true
     }
 
