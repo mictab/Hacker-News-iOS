@@ -16,7 +16,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     var stories = [Story]()
     var firebase: Firebase!
     let baseUrl = "https://hacker-news.firebaseio.com/v0/"
-    let storyNumLimit: UInt = 100
+    let storyNumLimit: UInt = 45
     var storyType: String = "topstories"
     
     required init?(coder aDecoder: NSCoder) {
@@ -93,7 +93,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
                         // We have our stories
                         for id in ids {
                             // Newest first
-                            self.stories.insert(storiesMap[id]!, atIndex: 0)
+                            self.stories.append(storiesMap[id]!)
                         }
                         self.tableView.reloadData()
                         UIApplication.sharedApplication().networkActivityIndicatorVisible = false
@@ -118,7 +118,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             self.storyType = "topstories"
             getStories()
         } else if sender.selectedSegmentIndex == 1 {
-            self.storyType = "neweststories"
+            self.storyType = "newstories"
             getStories()
         } else {
             print("Not yet implemented")
