@@ -18,10 +18,12 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     let baseUrl = "https://hacker-news.firebaseio.com/v0/"
     let storyNumLimit: UInt = 45
     var storyType: String = "topstories"
+    let dateFormatter = NSDateFormatter()
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         firebase = Firebase(url: baseUrl)
+        self.dateFormatter.dateFormat = "HH:mm"
     }
     
     override func viewDidLoad() {
@@ -54,9 +56,9 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         
         cell.titleLabel.text = story.title
         if story.score > 1 {
-            cell.detailLabel.text = "\(story.score) points by \(story.author)"
+            cell.detailLabel.text = "\(story.score) points by \(story.author), published at \(story.time)"
         } else {
-            cell.detailLabel.text = "\(story.score) point by \(story.author)"
+            cell.detailLabel.text = "\(story.score) point by \(story.author), published at \(story.time)"
         }
         
         return cell
@@ -109,8 +111,10 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         let url = snapshot.value["url"] as? String
         let author = snapshot.value["by"] as! String
         let score = snapshot.value["score"] as! Int
+        let time = NSDate(timeIntervalSince1970: snapshot.value["time"] as! Double)
+        let dateString = dateFormatter.stringFromDate(time)
         
-        return Story(title: title, url: url, author: author, score: score)
+        return Story(title: title, url: url, author: author, score: score, time: dateString)
     }
     
     @IBAction func changeStoryType(sender: UISegmentedControl) {

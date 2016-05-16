@@ -15,12 +15,14 @@ class Story {
     var url: String?
     var author: String
     var score: Int
+    var time: String
     
     // MARK: Initialization
-    init(title: String, url: String?, author: String, score: Int) {
+    init(title: String, url: String?, author: String, score: Int, time: String) {
         self.title = title
         self.url = url
         self.author = author
         self.score = score
+        self.time = time
     }
 }
