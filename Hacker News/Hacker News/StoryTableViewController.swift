@@ -8,118 +8,139 @@
 
 import UIKit
 import SafariServices
+import Firebase
 
-class StoryTableViewController: UITableViewController, SFSafariViewControllerDelegate {
+class StoryTableViewController: UITableViewController, SFSafariViewControllerDelegate, UISearchBarDelegate {
     
     // MARK: Properties
     var stories = [Story]()
-    var greyishTint = UIColor(red: 246/255.0, green: 246/255.0, blue: 239/255.0, alpha: 1.0)
-
+    var filteredStories = [Story]()
+    var firebase: Firebase!
+    let baseUrl = "https://hacker-news.firebaseio.com/v0/"
+    let storyNumLimit: UInt = 60
+    var storyType: String = "topstories"
+    let dateFormatter = NSDateFormatter()
+    @IBOutlet weak var searchBar: UISearchBar!
+    
+    @IBOutlet weak var segmentedController: UISegmentedControl!
+    @IBOutlet weak var nestedStackView: UIStackView! {
+        didSet {
+            nestedStackView.layoutMargins = UIEdgeInsets(top: 0.0, left: 7.0, bottom: 0.0, right: 7.0)
+            nestedStackView.layoutMarginsRelativeArrangement = true
+        }
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        firebase = Firebase(url: baseUrl)
+        self.dateFormatter.dateFormat = "HH:mm"
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.navigationBar.barTintColor = greyishTint
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
-        loadMockStories()
+        navigationController?.navigationBar.barTintColor = Colors.greyishTint
+        searchBar.delegate = self
+        getStories()
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
     // MARK: - Table view data source
-
+    
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return 1
     }
-
+    
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return stories.count
     }
     
-    func loadMockStories() {
-        let s1 = Story(title: "Trololol", url: "http://tabari.se", author: "Moa Nyman", score: 3)
-        let s2 = Story(title: "Nehedu", url: "http://kth.se", author: "Michel Tabari", score: 3)
-        let s3 = Story(title: "Maaaat", url: "http://svd.se", author: "Mowgli", score: 3)
-        
-        stories += [s1, s2, s3]
-    }
-
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let identifier = "StoryTableViewCell"
         let cell = tableView.dequeueReusableCellWithIdentifier(identifier, forIndexPath: indexPath) as! StoryTableViewCell
         let story = stories[indexPath.row]
         
         cell.titleLabel.text = story.title
-        cell.detailLabel.text = "\(story.score) by \(story.author)"
-
-        // Configure the cell...
-
+        if story.score > 1 {
+            cell.detailLabel.text = "\(story.score) points by \(story.author), published at \(story.time)"
+        } else {
+            cell.detailLabel.text = "\(story.score) point by \(story.author), published at \(story.time)"
+        }
+        
         return cell
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         let story = stories[indexPath.row]
-        let url = story.url
-        let webViewController = SFSafariViewController(URL: NSURL(string: url)!, entersReaderIfAvailable: true)
-        webViewController.delegate = self
-        presentViewController(webViewController, animated: true, completion: nil)
+        if let url = story.url {
+            let webViewController = SFSafariViewController(URL: NSURL(string: url)!, entersReaderIfAvailable: true)
+            webViewController.delegate = self
+            presentViewController(webViewController, animated: true, completion: nil)
+        }
     }
     
     func safariViewControllerDidFinish(controller: SFSafariViewController) {
         dismissViewControllerAnimated(true, completion: nil)
     }
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
+    
+    func getStories() {
+        let item = "item"
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+        self.stories = []
+        // Map each Id to a story
+        var storiesMap = [Int:Story]()
+        let dataQuery = firebase.childByAppendingPath(storyType).queryLimitedToFirst(storyNumLimit)
+        dataQuery.observeSingleEventOfType(.Value, withBlock:  {
+            snapshot in let ids = snapshot.value as! [Int]
+            for id in ids {
+                let dataQuery = self.firebase.childByAppendingPath(item).childByAppendingPath(String(id))
+                dataQuery.observeSingleEventOfType(.Value, withBlock: {
+                    snapshot in storiesMap[id] = self.getStoryDetail(snapshot)
+                    if storiesMap.count == Int(self.storyNumLimit) {
+                        // We have our stories
+                        for id in ids {
+                            // Newest first
+                            self.stories.append(storiesMap[id]!)
+                        }
+                        self.tableView.reloadData()
+                        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+                        print("Stories are in!")
+                    }
+                })
+            }
+        })
     }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+    
+    func getStoryDetail(snapshot: FDataSnapshot) -> Story {
+        let title = snapshot.value["title"] as! String
+        let url = snapshot.value["url"] as? String
+        let author = snapshot.value["by"] as! String
+        let score = snapshot.value["score"] as! Int
+        let time = NSDate(timeIntervalSince1970: snapshot.value["time"] as! Double)
+        let dateString = dateFormatter.stringFromDate(time)
+        
+        return Story(title: title, url: url, author: author, score: score, time: dateString)
     }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
+    
+    @IBAction func changeStoryType(sender: UISegmentedControl) {
+        if sender.selectedSegmentIndex == 0 {
+            self.storyType = "topstories"
+            getStories()
+        } else if sender.selectedSegmentIndex == 1 {
+            self.storyType = "newstories"
+            getStories()
+        } else {
+            print("Not yet implemented")
+        }
     }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
+    
+    @IBAction func scrollToTop(sender: UIBarButtonItem) {
+        self.tableView.setContentOffset(CGPointMake(0, 0 - self.tableView.contentInset.top), animated: true)
     }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
