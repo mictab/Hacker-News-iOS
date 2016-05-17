@@ -10,15 +10,25 @@ import UIKit
 import SafariServices
 import Firebase
 
-class StoryTableViewController: UITableViewController, SFSafariViewControllerDelegate {
+class StoryTableViewController: UITableViewController, SFSafariViewControllerDelegate, UISearchBarDelegate {
     
     // MARK: Properties
     var stories = [Story]()
+    var filteredStories = [Story]()
     var firebase: Firebase!
     let baseUrl = "https://hacker-news.firebaseio.com/v0/"
-    let storyNumLimit: UInt = 45
+    let storyNumLimit: UInt = 60
     var storyType: String = "topstories"
     let dateFormatter = NSDateFormatter()
+    @IBOutlet weak var searchBar: UISearchBar!
+    
+    @IBOutlet weak var segmentedController: UISegmentedControl!
+    @IBOutlet weak var nestedStackView: UIStackView! {
+        didSet {
+            nestedStackView.layoutMargins = UIEdgeInsets(top: 0.0, left: 7.0, bottom: 0.0, right: 7.0)
+            nestedStackView.layoutMarginsRelativeArrangement = true
+        }
+    }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -29,6 +39,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.barTintColor = Colors.greyishTint
+        searchBar.delegate = self
         getStories()
     }
     
