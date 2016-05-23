@@ -88,6 +88,7 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="HN" id="lUx-nJ-fMf">
+                        <barButtonItem key="leftBarButtonItem" title="Night" id="YZB-ny-39h"/>
                         <barButtonItem key="rightBarButtonItem" title="Scroll to top" id="hDV-b6-XH6">
                             <connections>
                                 <action selector="scrollToTop:" destination="B4e-bJ-MTh" id="RQS-We-q3x"/>

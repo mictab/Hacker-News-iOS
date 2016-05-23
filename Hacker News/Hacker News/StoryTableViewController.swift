@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import DKNightVersion
 import SafariServices
 import Firebase
 
@@ -143,4 +144,9 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     @IBAction func scrollToTop(sender: UIBarButtonItem) {
         self.tableView.setContentOffset(CGPointMake(0, 0 - self.tableView.contentInset.top), animated: true)
     }
+    
+    @IBAction func switchColorTheme(sender: UIBarButtonItem) {
+        self.navigationItem.leftBarButtonItem! = UIBarButtonItem(title: "Day", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(StoryTableViewController.switchColorTheme(_:)))
+    }
+    
 }
