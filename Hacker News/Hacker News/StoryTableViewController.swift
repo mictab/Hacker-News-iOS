@@ -144,9 +144,55 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     @IBAction func scrollToTop(sender: UIBarButtonItem) {
         self.tableView.setContentOffset(CGPointMake(0, 0 - self.tableView.contentInset.top), animated: true)
     }
-    
-    @IBAction func switchColorTheme(sender: UIBarButtonItem) {
-        self.navigationItem.leftBarButtonItem! = UIBarButtonItem(title: "Day", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(StoryTableViewController.switchColorTheme(_:)))
+    @IBAction func changeTheme(sender: UIBarButtonItem) {
+        if self.navigationItem.leftBarButtonItem!.title == "Night" {
+            nightMode()
+        } else {
+            dayMode()
+        }
     }
     
+    func nightMode(){
+        //Navigation Bar
+        self.navigationItem.leftBarButtonItem! = UIBarButtonItem(title: "Day", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(StoryTableViewController.changeTheme(_:)))
+        self.navigationController?.navigationBar.barStyle = UIBarStyle.Black
+        self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName : Colors.greyishTint]
+        self.navigationController?.navigationBar.barTintColor = Colors.nightTint
+        
+        //Search Bar
+        print(searchBar.backgroundColor)
+        self.searchBar.tintColor = UIColor.whiteColor()
+        self.searchBar.backgroundColor = Colors.nightTint
+        
+        //Segmented Control
+        self.segmentedController.backgroundColor = Colors.nightTint
+        
+        //Background
+        self.view.backgroundColor = Colors.nightTint
+        self.refreshControl?.tintColor = UIColor.whiteColor()
+        
+        //Cells
+        //UITableView.appearance().backgroundColor = Colors.lightNightTint
+    }
+    
+    func dayMode(){
+        //Navigation Bar
+        self.navigationItem.leftBarButtonItem! = UIBarButtonItem(title: "Night", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(StoryTableViewController.changeTheme(_:)))
+        self.navigationController?.navigationBar.barStyle = UIBarStyle.Default
+        self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName : UIColor.blackColor()]
+        self.navigationController?.navigationBar.barTintColor = Colors.greyishTint
+        
+        //Search Bar
+        self.searchBar.backgroundColor = UIColor.whiteColor()
+        
+        //Segmented Control
+        self.segmentedController.backgroundColor = UIColor.whiteColor()
+        
+        //Background
+        self.view.backgroundColor = UIColor.whiteColor()
+        self.refreshControl?.tintColor = UIColor.whiteColor()
+        
+        //Cells
+        //UITableView.appearance().backgroundColor = UIColor.whiteColor()
+    }
 }
