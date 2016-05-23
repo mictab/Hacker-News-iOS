@@ -176,6 +176,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         
         // Search Bar
         self.searchBar.backgroundColor = UIColor.whiteColor()
+        self.searchBar.tintColor = Colors.hackerTint
         
         // Segmented Control
         self.segmentedController.backgroundColor = UIColor.whiteColor()
