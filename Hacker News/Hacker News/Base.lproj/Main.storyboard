@@ -20,29 +20,24 @@
                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="xaP-fL-6W9">
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="76"/>
                                     <subviews>
-                                        <searchBar contentMode="redraw" searchBarStyle="minimal" text="" placeholder="Search" translatesAutoresizingMaskIntoConstraints="NO" id="slW-Om-YBs">
+                                        <searchBar contentMode="redraw" misplaced="YES" searchBarStyle="minimal" text="" placeholder="Search" translatesAutoresizingMaskIntoConstraints="NO" id="slW-Om-YBs">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                             <color key="barTintColor" white="0.75" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                             <textInputTraits key="textInputTraits" returnKeyType="search"/>
                                         </searchBar>
-                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="RAy-Zh-PnJ">
-                                            <rect key="frame" x="0.0" y="44" width="600" height="32"/>
-                                            <subviews>
-                                                <segmentedControl opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="249" preservesSuperviewLayoutMargins="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="NdD-Uu-XBr">
-                                                    <rect key="frame" x="0.0" y="0.0" width="600" height="33"/>
-                                                    <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
-                                                    <segments>
-                                                        <segment title="Top"/>
-                                                        <segment title="New"/>
-                                                        <segment title="Favorites"/>
-                                                        <segment title="Read Later"/>
-                                                    </segments>
-                                                    <connections>
-                                                        <action selector="changeStoryType:" destination="B4e-bJ-MTh" eventType="valueChanged" id="4od-BG-6jy"/>
-                                                    </connections>
-                                                </segmentedControl>
-                                            </subviews>
-                                        </stackView>
+                                        <segmentedControl opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="249" misplaced="YES" preservesSuperviewLayoutMargins="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="NdD-Uu-XBr">
+                                            <rect key="frame" x="0.0" y="44" width="600" height="33"/>
+                                            <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
+                                            <segments>
+                                                <segment title="Top"/>
+                                                <segment title="New"/>
+                                                <segment title="Favorites"/>
+                                                <segment title="Read Later"/>
+                                            </segments>
+                                            <connections>
+                                                <action selector="changeStoryType:" destination="B4e-bJ-MTh" eventType="valueChanged" id="4od-BG-6jy"/>
+                                            </connections>
+                                        </segmentedControl>
                                     </subviews>
                                 </stackView>
                             </subviews>
@@ -111,7 +106,6 @@
                         </attributedString>
                     </refreshControl>
                     <connections>
-                        <outlet property="nestedStackView" destination="RAy-Zh-PnJ" id="GIl-Ju-ULf"/>
                         <outlet property="searchBar" destination="slW-Om-YBs" id="2JY-3f-UJK"/>
                         <outlet property="searchDisplayController" destination="MPv-t1-03D" id="Duq-jX-zxI"/>
                         <outlet property="segmentedController" destination="NdD-Uu-XBr" id="2vk-k5-Q4B"/>
