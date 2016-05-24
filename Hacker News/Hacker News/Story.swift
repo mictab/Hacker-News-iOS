@@ -20,6 +20,7 @@ class Story: NSObject, NSCoding {
     //MARK: Archiving Paths
     static let DocumentsDirectory = NSFileManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
     static let ArchiveURLReadLater = DocumentsDirectory.URLByAppendingPathComponent("readLater")
+    static let ArchiveURLFavorites = DocumentsDirectory.URLByAppendingPathComponent("favorites")
     
     //MARK: Types
     struct PropertyKey {

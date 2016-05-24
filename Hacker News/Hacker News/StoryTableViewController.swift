@@ -15,11 +15,16 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     // MARK: Properties
     var stories = [Story]()
     var filteredStories = [Story]()
-    var readLater = [Story]()
+    
+    lazy var readLater = [Story]()
+    lazy var favorites = [Story]()
+    
     var firebase: Firebase!
     let baseUrl = "https://hacker-news.firebaseio.com/v0/"
+    
     let storyNumLimit: UInt = 60
     var storyType: String = "topstories"
+    
     let dateFormatter = NSDateFormatter()
     
     @IBOutlet weak var searchBar: UISearchBar!
@@ -38,7 +43,11 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         getStories()
         
         if let savedReadLater = loadReadLater() {
-            readLater += savedReadLater
+            readLater = savedReadLater
+        }
+        
+        if let savedFavorites = loadFavorites() {
+            favorites = savedFavorites
         }
         
         //Refresh control
@@ -138,8 +147,14 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         } else if sender.selectedSegmentIndex == 1 {
             self.storyType = "newstories"
             getStories()
+        } else if sender.selectedSegmentIndex == 2 {
+            self.storyType = "favorites"
+            self.stories = favorites
+            tableView.reloadData()
         } else {
-            print("Not yet implemented")
+            self.storyType = "readlater"
+            self.stories = readLater
+            tableView.reloadData()
         }
     }
     
@@ -206,11 +221,86 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     func saveReadLater() {
         let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(readLater, toFile: Story.ArchiveURLReadLater.path!)
         if !isSuccessfulSave {
-            print("Failed to save stories...")
+            print("Failed to save read later...")
+        }
+    }
+    
+    func saveFavorites() {
+        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(favorites, toFile: Story.ArchiveURLFavorites.path!)
+        if !isSuccessfulSave {
+            print("Failed to save favorites")
         }
     }
     
     func loadReadLater() -> [Story]? {
         return NSKeyedUnarchiver.unarchiveObjectWithFile(Story.ArchiveURLReadLater.path!) as? [Story]
+    }
+    
+    func loadFavorites() -> [Story]? {
+        return NSKeyedUnarchiver.unarchiveObjectWithFile(Story.ArchiveURLFavorites.path!) as? [Story]
+    }
+    
+    override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
+        var buttonArray = [UITableViewRowAction]()
+        
+        if storyType == "topstories" || storyType == "newstories" {
+            let favorite = UITableViewRowAction(style: .Normal, title: "Add to Favorites") { action, index in
+                print("favorite button tapped")
+                if !self.listContainsObject(self.stories[indexPath.row], listToSearch: self.favorites) {
+                    self.favorites.append(self.stories[indexPath.row])
+                    tableView.setEditing(false, animated: true)
+                    self.saveFavorites()
+                }
+            }
+            favorite.backgroundColor = UIColor.lightGrayColor()
+            buttonArray.append(favorite)
+            
+            let readLater = UITableViewRowAction(style: .Normal, title: "Read Later") { action, index in
+                print("read later button tapped")
+                if !self.listContainsObject(self.stories[indexPath.row], listToSearch: self.readLater) {
+                    self.readLater.append(self.stories[indexPath.row])
+                    tableView.setEditing(false, animated: true)
+                    self.saveReadLater()
+                    print(self.readLater)
+                }
+            }
+            readLater.backgroundColor = UIColor.orangeColor()
+            buttonArray.append(readLater)
+        } else if storyType == "favorites" {
+            let removeFavorite = UITableViewRowAction(style: .Normal, title: "Remove from favorites") { action, index in
+                print("delete button tapped")
+                self.stories.removeAtIndex(indexPath.row)
+                self.favorites.removeAtIndex(indexPath.row)
+                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
+                self.saveFavorites()
+            }
+            removeFavorite.backgroundColor = UIColor.redColor()
+            buttonArray.append(removeFavorite)
+        } else if storyType == "readlater" {
+            let removeReadLater = UITableViewRowAction(style: .Normal, title: "Remove from reading list") { action, index in
+                print("delete button tapped")
+                self.stories.removeAtIndex(indexPath.row)
+                self.readLater.removeAtIndex(indexPath.row)
+                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
+                self.saveReadLater()
+            }
+            removeReadLater.backgroundColor = UIColor.redColor()
+            buttonArray.append(removeReadLater)
+        }
+        return buttonArray.reverse()
+    }
+    
+    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        // the cells you would like the actions to appear needs to be editable
+        return true
+    }
+    
+    func listContainsObject(story: Story, listToSearch: [Story]) -> Bool {
+        for x in listToSearch {
+            if x.title == story.title {
+                return true
+            }
+        }
+        return false
     }
 }
