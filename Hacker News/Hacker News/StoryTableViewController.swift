@@ -248,7 +248,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
                 print("favorite button tapped")
                 if !self.listContainsObject(self.stories[indexPath.row], listToSearch: self.favorites) {
                     self.favorites.append(self.stories[indexPath.row])
-                    tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Right)
+                    tableView.setEditing(false, animated: true)
                     self.saveFavorites()
                 }
             }
@@ -259,7 +259,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
                 print("read later button tapped")
                 if !self.listContainsObject(self.stories[indexPath.row], listToSearch: self.readLater) {
                     self.readLater.append(self.stories[indexPath.row])
-                    tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Right)
+                    tableView.setEditing(false, animated: true)
                     self.saveReadLater()
                     print(self.readLater)
                 }
@@ -287,8 +287,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             removeReadLater.backgroundColor = UIColor.redColor()
             buttonArray.append(removeReadLater)
         }
-        
-        return buttonArray
+        return buttonArray.reverse()
     }
     
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
