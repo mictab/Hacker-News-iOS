@@ -21,8 +21,8 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     let storyNumLimit: UInt = 60
     var storyType: String = "topstories"
     let dateFormatter = NSDateFormatter()
-    @IBOutlet weak var searchBar: UISearchBar!
     
+    @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var segmentedController: UISegmentedControl!
     
     required init?(coder aDecoder: NSCoder) {
@@ -40,6 +40,9 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         if let savedReadLater = loadReadLater() {
             readLater += savedReadLater
         }
+        
+        //Refresh control
+        self.refreshControl?.addTarget(self, action: #selector(StoryTableViewController.handleRefresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
     }
     
     override func didReceiveMemoryWarning() {
@@ -144,6 +147,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         self.tableView.setContentOffset(CGPointMake(0, 0 - self.tableView.contentInset.top), animated: true)
     }
     
+    //MARK: Nightmode
     @IBAction func changeTheme(sender: UIBarButtonItem) {
         if self.navigationItem.leftBarButtonItem!.title == "Night" {
             nightMode()
@@ -189,6 +193,15 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         // Background
         self.view.backgroundColor = UIColor.whiteColor()
         self.refreshControl?.tintColor = UIColor.whiteColor()
+    }
+    
+    //MARK: Refresh Control
+    func handleRefresh(refreshControl: UIRefreshControl) {
+        //Get new stories
+        getStories()
+        
+        self.tableView.reloadData()
+        refreshControl.endRefreshing()
     }
     
     //MARK: NSCoding
