@@ -11,6 +11,8 @@ import UIKit
 struct Colors {
     static let greyishTint = UIColor(red: 246/255.0, green: 246/255.0, blue: 239/255.0, alpha: 1.0)
     static let hackerTint = UIColor(red: 255/255.0, green: 102/255.0, blue: 0, alpha: 1.0)
+    static let nightTint = UIColor(red: 73/255.0, green: 92/255.0, blue: 96/255.0, alpha: 1.0)
+    static let lightNightTint = UIColor(red: 127/255.0, green: 140/255.0, blue: 143/255.0, alpha: 1.0)
 }
 
 @UIApplicationMain

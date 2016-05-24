@@ -15,20 +15,20 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     // MARK: Properties
     var stories = [Story]()
     var filteredStories = [Story]()
+    
+    lazy var readLater = [Story]()
+    lazy var favorites = [Story]()
+    
     var firebase: Firebase!
     let baseUrl = "https://hacker-news.firebaseio.com/v0/"
+    
     let storyNumLimit: UInt = 60
     var storyType: String = "topstories"
-    let dateFormatter = NSDateFormatter()
-    @IBOutlet weak var searchBar: UISearchBar!
     
+    let dateFormatter = NSDateFormatter()
+    
+    @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var segmentedController: UISegmentedControl!
-    @IBOutlet weak var nestedStackView: UIStackView! {
-        didSet {
-            nestedStackView.layoutMargins = UIEdgeInsets(top: 0.0, left: 7.0, bottom: 0.0, right: 7.0)
-            nestedStackView.layoutMarginsRelativeArrangement = true
-        }
-    }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -41,22 +41,28 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         navigationController?.navigationBar.barTintColor = Colors.greyishTint
         searchBar.delegate = self
         getStories()
+        
+        if let savedReadLater = loadReadLater() {
+            readLater = savedReadLater
+        }
+        
+        if let savedFavorites = loadFavorites() {
+            favorites = savedFavorites
+        }
+        
+        //Refresh control
+        self.refreshControl?.addTarget(self, action: #selector(StoryTableViewController.handleRefresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
-    // MARK: - Table view data source
-    
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return 1
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
         return stories.count
     }
     
@@ -64,6 +70,12 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         let identifier = "StoryTableViewCell"
         let cell = tableView.dequeueReusableCellWithIdentifier(identifier, forIndexPath: indexPath) as! StoryTableViewCell
         let story = stories[indexPath.row]
+        
+        if self.navigationItem.leftBarButtonItem!.title == "Day" {
+            cell.backgroundColor = Colors.lightNightTint
+        } else {
+            cell.backgroundColor = UIColor.whiteColor()
+        }
         
         cell.titleLabel.text = story.title
         if story.score > 1 {
@@ -135,12 +147,160 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         } else if sender.selectedSegmentIndex == 1 {
             self.storyType = "newstories"
             getStories()
+        } else if sender.selectedSegmentIndex == 2 {
+            self.storyType = "favorites"
+            self.stories = favorites
+            tableView.reloadData()
         } else {
-            print("Not yet implemented")
+            self.storyType = "readlater"
+            self.stories = readLater
+            tableView.reloadData()
         }
     }
     
     @IBAction func scrollToTop(sender: UIBarButtonItem) {
         self.tableView.setContentOffset(CGPointMake(0, 0 - self.tableView.contentInset.top), animated: true)
+    }
+    
+    //MARK: Nightmode
+    @IBAction func changeTheme(sender: UIBarButtonItem) {
+        if self.navigationItem.leftBarButtonItem!.title == "Night" {
+            nightMode()
+        } else {
+            dayMode()
+        }
+        self.tableView.reloadData()
+    }
+    
+    func nightMode(){
+        // Navigation Bar
+        self.navigationItem.leftBarButtonItem! = UIBarButtonItem(title: "Day", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(StoryTableViewController.changeTheme(_:)))
+        self.navigationController?.navigationBar.barStyle = UIBarStyle.Black
+        self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName : Colors.greyishTint]
+        self.navigationController?.navigationBar.barTintColor = Colors.nightTint
+        
+        // Search Bar
+        self.searchBar.tintColor = UIColor.whiteColor()
+        self.searchBar.backgroundColor = Colors.nightTint
+        
+        // Segmented Control
+        self.segmentedController.backgroundColor = Colors.nightTint
+        
+        // Background
+        self.view.backgroundColor = Colors.nightTint
+    }
+    
+    func dayMode(){
+        // Navigation Bar
+        self.navigationItem.leftBarButtonItem! = UIBarButtonItem(title: "Night", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(StoryTableViewController.changeTheme(_:)))
+        self.navigationController?.navigationBar.barStyle = UIBarStyle.Default
+        self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName : UIColor.blackColor()]
+        self.navigationController?.navigationBar.barTintColor = Colors.greyishTint
+        
+        // Search Bar
+        self.searchBar.backgroundColor = UIColor.whiteColor()
+        self.searchBar.tintColor = Colors.hackerTint
+        
+        // Segmented Control
+        self.segmentedController.backgroundColor = UIColor.whiteColor()
+        
+        // Background
+        self.view.backgroundColor = UIColor.whiteColor()
+    }
+    
+    // MARK: Refresh Control
+    func handleRefresh(refreshControl: UIRefreshControl) {
+        //Get new stories
+        refreshControl.beginRefreshing()
+        getStories()
+        self.tableView.reloadData()
+        refreshControl.endRefreshing()
+    }
+    
+    // MARK: NSCoding
+    func saveReadLater() {
+        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(readLater, toFile: Story.ArchiveURLReadLater.path!)
+        if !isSuccessfulSave {
+            print("Failed to save read later...")
+        }
+    }
+    
+    func saveFavorites() {
+        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(favorites, toFile: Story.ArchiveURLFavorites.path!)
+        if !isSuccessfulSave {
+            print("Failed to save favorites")
+        }
+    }
+    
+    func loadReadLater() -> [Story]? {
+        return NSKeyedUnarchiver.unarchiveObjectWithFile(Story.ArchiveURLReadLater.path!) as? [Story]
+    }
+    
+    func loadFavorites() -> [Story]? {
+        return NSKeyedUnarchiver.unarchiveObjectWithFile(Story.ArchiveURLFavorites.path!) as? [Story]
+    }
+    
+    override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
+        var buttonArray = [UITableViewRowAction]()
+        
+        if storyType == "topstories" || storyType == "newstories" {
+            let favorite = UITableViewRowAction(style: .Normal, title: "Add to Favorites") { action, index in
+                print("favorite button tapped")
+                if !self.listContainsObject(self.stories[indexPath.row], listToSearch: self.favorites) {
+                    self.favorites.append(self.stories[indexPath.row])
+                    tableView.setEditing(false, animated: true)
+                    self.saveFavorites()
+                }
+            }
+            favorite.backgroundColor = UIColor.lightGrayColor()
+            buttonArray.append(favorite)
+            
+            let readLater = UITableViewRowAction(style: .Normal, title: "Read Later") { action, index in
+                print("read later button tapped")
+                if !self.listContainsObject(self.stories[indexPath.row], listToSearch: self.readLater) {
+                    self.readLater.append(self.stories[indexPath.row])
+                    tableView.setEditing(false, animated: true)
+                    self.saveReadLater()
+                    print(self.readLater)
+                }
+            }
+            readLater.backgroundColor = UIColor.orangeColor()
+            buttonArray.append(readLater)
+        } else if storyType == "favorites" {
+            let removeFavorite = UITableViewRowAction(style: .Normal, title: "Remove from favorites") { action, index in
+                print("delete button tapped")
+                self.stories.removeAtIndex(indexPath.row)
+                self.favorites.removeAtIndex(indexPath.row)
+                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
+                self.saveFavorites()
+            }
+            removeFavorite.backgroundColor = UIColor.redColor()
+            buttonArray.append(removeFavorite)
+        } else if storyType == "readlater" {
+            let removeReadLater = UITableViewRowAction(style: .Normal, title: "Remove from reading list") { action, index in
+                print("delete button tapped")
+                self.stories.removeAtIndex(indexPath.row)
+                self.readLater.removeAtIndex(indexPath.row)
+                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
+                self.saveReadLater()
+            }
+            removeReadLater.backgroundColor = UIColor.redColor()
+            buttonArray.append(removeReadLater)
+        }
+        return buttonArray.reverse()
+    }
+    
+    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        // the cells you would like the actions to appear needs to be editable
+        return true
+    }
+    
+    func listContainsObject(story: Story, listToSearch: [Story]) -> Bool {
+        for x in listToSearch {
+            if x.title == story.title {
+                return true
+            }
+        }
+        return false
     }
 }

@@ -1,12 +1,27 @@
 PODS:
+  - DKNightVersion (2.3.0):
+    - DKNightVersion/Core (= 2.3.0)
+    - DKNightVersion/CoreAnimation (= 2.3.0)
+    - DKNightVersion/UIKit (= 2.3.0)
+  - DKNightVersion/Core (2.3.0):
+    - DKNightVersion/Core/DeallocBlockExecutor (= 2.3.0)
+    - DKNightVersion/Core/extobjc (= 2.3.0)
+  - DKNightVersion/Core/DeallocBlockExecutor (2.3.0)
+  - DKNightVersion/Core/extobjc (2.3.0)
+  - DKNightVersion/CoreAnimation (2.3.0):
+    - DKNightVersion/Core
+  - DKNightVersion/UIKit (2.3.0):
+    - DKNightVersion/Core
   - Firebase (2.5.1)
 
 DEPENDENCIES:
+  - DKNightVersion
   - Firebase
 
 SPEC CHECKSUMS:
+  DKNightVersion: 459438cbfd14edb9e41a777ff14b18e5661b9269
   Firebase: 3565ea88b830f28f2c77ecc524622bc71a20d085
 
-PODFILE CHECKSUM: fe710d67c2ca1493947173b13b94560b450ffe78
+PODFILE CHECKSUM: 84cbe86c9697e08f575133c702ee3efd9e79de3f
 
-COCOAPODS: 1.0.0.rc.1
+COCOAPODS: 1.0.0
