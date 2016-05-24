@@ -289,15 +289,29 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             buttonArray.append(removeReadLater)
         }
         
-        let share = UITableViewRowAction(style: .Normal, title: "Share") { action, index in
-            let shareText = "Hey! I just read this awesome story in the Hacker News app!"
-            let url = NSURL(string: self.stories[indexPath.row].url!)
-            let vc = UIActivityViewController(activityItems: [shareText, url!], applicationActivities: nil)
-            self.navigationController?.presentViewController(vc, animated: true, completion: nil)
-            tableView.setEditing(false, animated: true)
+        if self.filteredStories.isEmpty {
+            let share = UITableViewRowAction(style: .Normal, title: "Share") { action, index in
+                let story = self.stories[indexPath.row]
+                let shareText = "Hey! I just read this awesome story in the Hacker News app!"
+                let url = NSURL(string: story.url!)
+                let vc = UIActivityViewController(activityItems: [shareText, url!], applicationActivities: nil)
+                self.navigationController?.presentViewController(vc, animated: true, completion: nil)
+                tableView.setEditing(false, animated: true)
+            }
+            share.backgroundColor = UIColor.blueColor()
+            buttonArray.append(share)
+        } else {
+            let share = UITableViewRowAction(style: .Normal, title: "Share") { action, index in
+                let story = self.filteredStories[indexPath.row]
+                let shareText = "Hey! I just read this awesome story in the Hacker News app!"
+                let url = NSURL(string: story.url!)
+                let vc = UIActivityViewController(activityItems: [shareText, url!], applicationActivities: nil)
+                self.navigationController?.presentViewController(vc, animated: true, completion: nil)
+                tableView.setEditing(false, animated: true)
+            }
+            share.backgroundColor = UIColor.blueColor()
+            buttonArray.append(share)
         }
-        share.backgroundColor = UIColor.blueColor()
-        buttonArray.append(share)
         
         return buttonArray.reverse()
     }
