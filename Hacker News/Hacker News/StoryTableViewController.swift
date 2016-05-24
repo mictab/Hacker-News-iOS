@@ -15,11 +15,16 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     // MARK: Properties
     var stories = [Story]()
     var filteredStories = [Story]()
-    var readLater = [Story]()
+    
+    lazy var readLater = [Story]()
+    lazy var favorites = [Story]()
+    
     var firebase: Firebase!
     let baseUrl = "https://hacker-news.firebaseio.com/v0/"
+    
     let storyNumLimit: UInt = 60
     var storyType: String = "topstories"
+    
     let dateFormatter = NSDateFormatter()
     
     @IBOutlet weak var searchBar: UISearchBar!
@@ -38,7 +43,11 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         getStories()
         
         if let savedReadLater = loadReadLater() {
-            readLater += savedReadLater
+            readLater = savedReadLater
+        }
+        
+        if let savedFavorites = loadFavorites() {
+            favorites = savedFavorites
         }
         
         //Refresh control
@@ -138,8 +147,14 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         } else if sender.selectedSegmentIndex == 1 {
             self.storyType = "newstories"
             getStories()
+        } else if sender.selectedSegmentIndex == 2 {
+            self.storyType = "favorites"
+            self.stories = favorites
+            tableView.reloadData()
         } else {
-            print("Not yet implemented")
+            self.storyType = "readlater"
+            self.stories = readLater
+            tableView.reloadData()
         }
     }
     
@@ -206,11 +221,45 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     func saveReadLater() {
         let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(readLater, toFile: Story.ArchiveURLReadLater.path!)
         if !isSuccessfulSave {
-            print("Failed to save stories...")
+            print("Failed to save read later...")
+        }
+    }
+    
+    func saveFavorites() {
+        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(favorites, toFile: Story.ArchiveURLFavorites.path!)
+        if !isSuccessfulSave {
+            print("Failed to save favorites")
         }
     }
     
     func loadReadLater() -> [Story]? {
         return NSKeyedUnarchiver.unarchiveObjectWithFile(Story.ArchiveURLReadLater.path!) as? [Story]
+    }
+    
+    func loadFavorites() -> [Story]? {
+        return NSKeyedUnarchiver.unarchiveObjectWithFile(Story.ArchiveURLFavorites.path!) as? [Story]
+    }
+    
+    override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
+        let favorite = UITableViewRowAction(style: .Normal, title: "Favorites") { action, index in
+            print("favorite button tapped")
+            self.favorites.append(self.stories[indexPath.row])
+            self.saveFavorites()
+        }
+        favorite.backgroundColor = UIColor.lightGrayColor()
+        
+        let readLater = UITableViewRowAction(style: .Normal, title: "Read Later") { action, index in
+            print("read later button tapped")
+            self.readLater.append(self.stories[indexPath.row])
+            self.saveReadLater()
+        }
+        favorite.backgroundColor = UIColor.orangeColor()
+        
+        return [readLater, favorite]
+    }
+    
+    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        // the cells you would like the actions to appear needs to be editable
+        return true
     }
 }
