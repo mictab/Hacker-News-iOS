@@ -19,7 +19,6 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     lazy var readLater = [Story]()
     lazy var favorites = [Story]()
-    
     var firebase: Firebase!
     let baseUrl = "https://hacker-news.firebaseio.com/v0/"
     
@@ -248,8 +247,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         var buttonArray = [UITableViewRowAction]()
         
         if storyType == "topstories" || storyType == "newstories" {
-            let favorite = UITableViewRowAction(style: .Normal, title: "Add to Favorites") { action, index in
-                print("favorite button tapped")
+            let favorite = UITableViewRowAction(style: .Normal, title: "Favorite") { action, index in
                 if !self.listContainsObject(self.stories[indexPath.row], listToSearch: self.favorites) {
                     self.favorites.append(self.stories[indexPath.row])
                     tableView.setEditing(false, animated: true)
@@ -260,19 +258,16 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             buttonArray.append(favorite)
             
             let readLater = UITableViewRowAction(style: .Normal, title: "Read Later") { action, index in
-                print("read later button tapped")
                 if !self.listContainsObject(self.stories[indexPath.row], listToSearch: self.readLater) {
                     self.readLater.append(self.stories[indexPath.row])
                     tableView.setEditing(false, animated: true)
                     self.saveReadLater()
-                    print(self.readLater)
                 }
             }
             readLater.backgroundColor = UIColor.orangeColor()
             buttonArray.append(readLater)
         } else if storyType == "favorites" {
             let removeFavorite = UITableViewRowAction(style: .Normal, title: "Remove") { action, index in
-                print("delete button tapped")
                 self.stories.removeAtIndex(indexPath.row)
                 self.favorites.removeAtIndex(indexPath.row)
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
@@ -282,7 +277,6 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             buttonArray.append(removeFavorite)
         } else if storyType == "readlater" {
             let removeReadLater = UITableViewRowAction(style: .Normal, title: "Remove") { action, index in
-                print("delete button tapped")
                 self.stories.removeAtIndex(indexPath.row)
                 self.readLater.removeAtIndex(indexPath.row)
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
@@ -291,6 +285,17 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             removeReadLater.backgroundColor = UIColor.redColor()
             buttonArray.append(removeReadLater)
         }
+        
+        let share = UITableViewRowAction(style: .Normal, title: "Share") { action, index in
+            let shareText = "Hey! I just read this awesome story in the Hacker News app!"
+            let url = NSURL(string: self.stories[indexPath.row].url!)
+            let vc = UIActivityViewController(activityItems: [shareText, url!], applicationActivities: nil)
+            self.navigationController?.presentViewController(vc, animated: true, completion: nil)
+            tableView.setEditing(false, animated: true)
+        }
+        share.backgroundColor = UIColor.blueColor()
+        buttonArray.append(share)
+        
         return buttonArray.reverse()
     }
     
