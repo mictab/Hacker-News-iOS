@@ -73,8 +73,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let identifier = "StoryTableViewCell"
         let cell = tableView.dequeueReusableCellWithIdentifier(identifier, forIndexPath: indexPath) as! StoryTableViewCell
-        
-        let story = stories[indexPath.row]
+        let story = filteredStories.count > 0 ? filteredStories[indexPath.row] : stories[indexPath.row]
         
         if self.navigationItem.leftBarButtonItem!.title == "Day" {
             cell.backgroundColor = Colors.lightNightTint
@@ -94,7 +93,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        let story = stories[indexPath.row]
+        let story = filteredStories.count > 0 ? filteredStories[indexPath.row] : stories[indexPath.row]
         if let url = story.url {
             let webViewController = SFSafariViewController(URL: NSURL(string: url)!, entersReaderIfAvailable: true)
             webViewController.delegate = self
