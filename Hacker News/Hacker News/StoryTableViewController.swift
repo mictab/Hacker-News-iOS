@@ -241,21 +241,47 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     }
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
-        let favorite = UITableViewRowAction(style: .Normal, title: "Favorites") { action, index in
-            print("favorite button tapped")
-            self.favorites.append(self.stories[indexPath.row])
-            self.saveFavorites()
-        }
-        favorite.backgroundColor = UIColor.lightGrayColor()
+        var buttonArray = [UITableViewRowAction]()
         
-        let readLater = UITableViewRowAction(style: .Normal, title: "Read Later") { action, index in
-            print("read later button tapped")
-            self.readLater.append(self.stories[indexPath.row])
-            self.saveReadLater()
+        if storyType == "topstories" || storyType == "newstories" {
+            let favorite = UITableViewRowAction(style: .Normal, title: "Add to Favorites") { action, index in
+                print("favorite button tapped")
+                self.favorites.append(self.stories[indexPath.row])
+                self.saveFavorites()
+            }
+            favorite.backgroundColor = UIColor.lightGrayColor()
+            buttonArray.append(favorite)
+            
+            let readLater = UITableViewRowAction(style: .Normal, title: "Read Later") { action, index in
+                print("read later button tapped")
+                self.readLater.append(self.stories[indexPath.row])
+                self.saveReadLater()
+            }
+            readLater.backgroundColor = UIColor.orangeColor()
+            buttonArray.append(readLater)
+        } else if storyType == "favorites" {
+            let remove = UITableViewRowAction(style: .Normal, title: "Remove from favorites") { action, index in
+                print("delete button tapped")
+                self.stories.removeAtIndex(indexPath.row)
+                self.favorites.removeAtIndex(indexPath.row)
+                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
+                self.saveFavorites()
+            }
+            remove.backgroundColor = UIColor.redColor()
+            buttonArray.append(remove)
+        } else if storyType == "readlater" {
+            let remove = UITableViewRowAction(style: .Normal, title: "Remove from reading list") { action, index in
+                print("delete button tapped")
+                self.stories.removeAtIndex(indexPath.row)
+                self.readLater.removeAtIndex(indexPath.row)
+                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
+                self.saveReadLater()
+            }
+            remove.backgroundColor = UIColor.redColor()
+            buttonArray.append(remove)
         }
-        favorite.backgroundColor = UIColor.orangeColor()
         
-        return [readLater, favorite]
+        return buttonArray
     }
     
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
