@@ -10,23 +10,27 @@ import UIKit
 import SafariServices
 import Firebase
 
-class StoryTableViewController: UITableViewController, SFSafariViewControllerDelegate, UISearchBarDelegate {
+struct StoryType {
+    static let Top = "topstories"
+    static let New = "newstories"
+    static let Favorite = "favorites"
+    static let ReadLater = "readlater"
+}
+
+class StoryTableViewController: UITableViewController, SFSafariViewControllerDelegate, UISearchBarDelegate, UIViewControllerPreviewingDelegate {
     
     // MARK: Properties
+    
     var stories = [Story]()
     var filteredStories = [Story]()
-    
+    var searchActive = false
     lazy var readLater = [Story]()
     lazy var favorites = [Story]()
-    
     var firebase: Firebase!
     let baseUrl = "https://hacker-news.firebaseio.com/v0/"
-    
     let storyNumLimit: UInt = 60
-    var storyType: String = "topstories"
-    
+    var storyType = StoryType.Top
     let dateFormatter = NSDateFormatter()
-    
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var segmentedController: UISegmentedControl!
     
@@ -38,6 +42,13 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if !Reachability.isConnectedToNetwork() {
+            configureInternetAlert()
+        }
+        
+        if traitCollection.forceTouchCapability == .Available {
+            registerForPreviewingWithDelegate(self, sourceView: tableView)
+        }
         navigationController?.navigationBar.barTintColor = Colors.greyishTint
         searchBar.delegate = self
         getStories()
@@ -49,8 +60,6 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         if let savedFavorites = loadFavorites() {
             favorites = savedFavorites
         }
-        
-        //Refresh control
         self.refreshControl?.addTarget(self, action: #selector(StoryTableViewController.handleRefresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
     }
     
@@ -63,13 +72,16 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if searchActive {
+            return filteredStories.count
+        }
         return stories.count
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let identifier = "StoryTableViewCell"
         let cell = tableView.dequeueReusableCellWithIdentifier(identifier, forIndexPath: indexPath) as! StoryTableViewCell
-        let story = stories[indexPath.row]
+        let story = filteredStories.count > 0 ? filteredStories[indexPath.row] : stories[indexPath.row]
         
         if self.navigationItem.leftBarButtonItem!.title == "Day" {
             cell.backgroundColor = Colors.lightNightTint
@@ -89,7 +101,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        let story = stories[indexPath.row]
+        let story = filteredStories.count > 0 ? filteredStories[indexPath.row] : stories[indexPath.row]
         if let url = story.url {
             let webViewController = SFSafariViewController(URL: NSURL(string: url)!, entersReaderIfAvailable: true)
             webViewController.delegate = self
@@ -102,10 +114,12 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     }
     
     func getStories() {
+        if storyType == StoryType.Favorite || storyType == StoryType.ReadLater {
+            return
+        }
         let item = "item"
         UIApplication.sharedApplication().networkActivityIndicatorVisible = true
         self.stories = []
-        // Map each Id to a story
         var storiesMap = [Int:Story]()
         let dataQuery = firebase.childByAppendingPath(storyType).queryLimitedToFirst(storyNumLimit)
         dataQuery.observeSingleEventOfType(.Value, withBlock:  {
@@ -115,9 +129,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
                 dataQuery.observeSingleEventOfType(.Value, withBlock: {
                     snapshot in storiesMap[id] = self.getStoryDetail(snapshot)
                     if storiesMap.count == Int(self.storyNumLimit) {
-                        // We have our stories
                         for id in ids {
-                            // Newest first
                             self.stories.append(storiesMap[id]!)
                         }
                         self.tableView.reloadData()
@@ -142,17 +154,17 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     @IBAction func changeStoryType(sender: UISegmentedControl) {
         if sender.selectedSegmentIndex == 0 {
-            self.storyType = "topstories"
+            self.storyType = StoryType.Top
             getStories()
         } else if sender.selectedSegmentIndex == 1 {
-            self.storyType = "newstories"
+            self.storyType = StoryType.New
             getStories()
         } else if sender.selectedSegmentIndex == 2 {
-            self.storyType = "favorites"
+            self.storyType = StoryType.Favorite
             self.stories = favorites
             tableView.reloadData()
         } else {
-            self.storyType = "readlater"
+            self.storyType = StoryType.ReadLater
             self.stories = readLater
             tableView.reloadData()
         }
@@ -162,7 +174,8 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         self.tableView.setContentOffset(CGPointMake(0, 0 - self.tableView.contentInset.top), animated: true)
     }
     
-    //MARK: Nightmode
+    // MARK: Nightmode
+    
     @IBAction func changeTheme(sender: UIBarButtonItem) {
         if self.navigationItem.leftBarButtonItem!.title == "Night" {
             nightMode()
@@ -173,55 +186,44 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     }
     
     func nightMode(){
-        // Navigation Bar
         self.navigationItem.leftBarButtonItem! = UIBarButtonItem(title: "Day", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(StoryTableViewController.changeTheme(_:)))
         self.navigationController?.navigationBar.barStyle = UIBarStyle.Black
         self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName : Colors.greyishTint]
         self.navigationController?.navigationBar.barTintColor = Colors.nightTint
-        
-        // Search Bar
         self.searchBar.tintColor = UIColor.whiteColor()
         self.searchBar.backgroundColor = Colors.nightTint
-        
-        // Segmented Control
         self.segmentedController.backgroundColor = Colors.nightTint
-        
-        // Background
         self.view.backgroundColor = Colors.nightTint
     }
     
     func dayMode(){
-        // Navigation Bar
         self.navigationItem.leftBarButtonItem! = UIBarButtonItem(title: "Night", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(StoryTableViewController.changeTheme(_:)))
         self.navigationController?.navigationBar.barStyle = UIBarStyle.Default
         self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName : UIColor.blackColor()]
         self.navigationController?.navigationBar.barTintColor = Colors.greyishTint
-        
-        // Search Bar
         self.searchBar.backgroundColor = UIColor.whiteColor()
         self.searchBar.tintColor = Colors.hackerTint
-        
-        // Segmented Control
         self.segmentedController.backgroundColor = UIColor.whiteColor()
-        
-        // Background
         self.view.backgroundColor = UIColor.whiteColor()
     }
     
     // MARK: Refresh Control
+    
     func handleRefresh(refreshControl: UIRefreshControl) {
-        //Get new stories
         refreshControl.beginRefreshing()
         getStories()
-        self.tableView.reloadData()
+        if storyType == StoryType.Top || storyType == StoryType.New {
+            self.tableView.reloadData()
+        }
         refreshControl.endRefreshing()
     }
     
     // MARK: NSCoding
+    
     func saveReadLater() {
         let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(readLater, toFile: Story.ArchiveURLReadLater.path!)
         if !isSuccessfulSave {
-            print("Failed to save read later...")
+            print("Failed to save read later")
         }
     }
     
@@ -242,12 +244,11 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
         var buttonArray = [UITableViewRowAction]()
-        
-        if storyType == "topstories" || storyType == "newstories" {
-            let favorite = UITableViewRowAction(style: .Normal, title: "Add to Favorites") { action, index in
-                print("favorite button tapped")
-                if !self.listContainsObject(self.stories[indexPath.row], listToSearch: self.favorites) {
-                    self.favorites.append(self.stories[indexPath.row])
+        let story = self.filteredStories.count > 0 ? self.filteredStories[indexPath.row] : self.stories[indexPath.row]
+        if storyType == StoryType.Top || storyType == StoryType.New {
+            let favorite = UITableViewRowAction(style: .Normal, title: "Favorite") { action, index in
+                if !self.listContainsObject(story, listToSearch: self.favorites) {
+                    self.favorites.append(story)
                     tableView.setEditing(false, animated: true)
                     self.saveFavorites()
                 }
@@ -256,19 +257,16 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             buttonArray.append(favorite)
             
             let readLater = UITableViewRowAction(style: .Normal, title: "Read Later") { action, index in
-                print("read later button tapped")
-                if !self.listContainsObject(self.stories[indexPath.row], listToSearch: self.readLater) {
-                    self.readLater.append(self.stories[indexPath.row])
+                if !self.listContainsObject(story, listToSearch: self.readLater) {
+                    self.readLater.append(story)
                     tableView.setEditing(false, animated: true)
                     self.saveReadLater()
-                    print(self.readLater)
                 }
             }
             readLater.backgroundColor = UIColor.orangeColor()
             buttonArray.append(readLater)
-        } else if storyType == "favorites" {
-            let removeFavorite = UITableViewRowAction(style: .Normal, title: "Remove from favorites") { action, index in
-                print("delete button tapped")
+        } else if storyType == StoryType.Favorite {
+            let removeFavorite = UITableViewRowAction(style: .Normal, title: "Remove") { action, index in
                 self.stories.removeAtIndex(indexPath.row)
                 self.favorites.removeAtIndex(indexPath.row)
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
@@ -276,9 +274,8 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             }
             removeFavorite.backgroundColor = UIColor.redColor()
             buttonArray.append(removeFavorite)
-        } else if storyType == "readlater" {
-            let removeReadLater = UITableViewRowAction(style: .Normal, title: "Remove from reading list") { action, index in
-                print("delete button tapped")
+        } else if storyType == StoryType.ReadLater {
+            let removeReadLater = UITableViewRowAction(style: .Normal, title: "Remove") { action, index in
                 self.stories.removeAtIndex(indexPath.row)
                 self.readLater.removeAtIndex(indexPath.row)
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
@@ -287,11 +284,24 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             removeReadLater.backgroundColor = UIColor.redColor()
             buttonArray.append(removeReadLater)
         }
+        
+        let share = UITableViewRowAction(style: .Normal, title: "Share") { action, index in
+            let shareText = "Hey! I just read this awesome story in the Hacker News app!"
+            if story.url == nil {
+                return
+            }
+            let url = story.url
+            let vc = UIActivityViewController(activityItems: [shareText, url!], applicationActivities: nil)
+            self.navigationController?.presentViewController(vc, animated: true, completion: nil)
+            tableView.setEditing(false, animated: true)
+        }
+        share.backgroundColor = UIColor.blueColor()
+        buttonArray.append(share)
+        
         return buttonArray.reverse()
     }
     
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // the cells you would like the actions to appear needs to be editable
         return true
     }
     
@@ -302,5 +312,72 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             }
         }
         return false
+    }
+    
+    func configureInternetAlert() {
+        print("Internet connection FAILED")
+        let OK = UIAlertAction(title: "OK", style: .Default, handler: nil)
+        let alert = UIAlertController(title: "No Internet Connection", message: "Make sure your device is connected to the internet. This app requires it.",
+                                      preferredStyle: UIAlertControllerStyle.Alert)
+        alert.addAction(OK)
+        self.navigationController?.presentViewController(alert, animated: true, completion: nil)
+    }
+    
+    // MARK: Search
+    
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        filteredStories = stories.filter({ (text) -> Bool in
+            let tmp: NSString = text.title
+            let range = tmp.rangeOfString(searchText, options: NSStringCompareOptions.CaseInsensitiveSearch)
+            return range.location != NSNotFound
+        })
+        if searchText.isEmpty {
+            searchActive = false;
+        } else {
+            searchActive = true;
+        }
+        tableView.reloadData()
+    }
+    
+    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+        searchActive = true;
+        searchBar.showsCancelButton = true
+    }
+    
+    func searchBarTextDidEndEditing(searchBar: UISearchBar) {
+        searchActive = false;
+        searchBar.showsCancelButton = false
+    }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        searchActive = false;
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        searchActive = false;
+        searchBar.resignFirstResponder()
+    }
+    
+    // MARK: 3D Touch
+    
+    func previewingContext(previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        guard let highlightedIndexPath = tableView.indexPathForRowAtPoint(location),
+            let cell = tableView.cellForRowAtIndexPath(highlightedIndexPath) else { return nil }
+        let arrayToUse = self.filteredStories.count > 0 ? self.filteredStories : self.stories
+        let cellToOpen = arrayToUse[highlightedIndexPath.row]
+        if cellToOpen.url == nil {
+            return nil
+        }
+        let vc = SFSafariViewController(URL: NSURL(string: cellToOpen.url!)!, entersReaderIfAvailable: true)
+        
+        vc.preferredContentSize = CGSize(width: 0.0, height: 620.0)
+        previewingContext.sourceRect = cell.frame
+        
+        return vc
+    }
+    
+    func previewingContext(previewingContext: UIViewControllerPreviewing, commitViewController viewControllerToCommit: UIViewController) {
+        presentViewController(viewControllerToCommit, animated: true, completion: nil)
     }
 }
