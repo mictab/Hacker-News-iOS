@@ -15,6 +15,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     // MARK: Properties
     var stories = [Story]()
     var filteredStories = [Story]()
+    var searchActive = false
     
     lazy var readLater = [Story]()
     lazy var favorites = [Story]()
@@ -63,13 +64,16 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if searchActive {
+            return filteredStories.count
+        }
         return stories.count
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let identifier = "StoryTableViewCell"
         let cell = tableView.dequeueReusableCellWithIdentifier(identifier, forIndexPath: indexPath) as! StoryTableViewCell
-        let story = stories[indexPath.row]
+        let story = filteredStories.count > 0 ? filteredStories[indexPath.row] : stories[indexPath.row]
         
         if self.navigationItem.leftBarButtonItem!.title == "Day" {
             cell.backgroundColor = Colors.lightNightTint
@@ -89,7 +93,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        let story = stories[indexPath.row]
+        let story = filteredStories.count > 0 ? filteredStories[indexPath.row] : stories[indexPath.row]
         if let url = story.url {
             let webViewController = SFSafariViewController(URL: NSURL(string: url)!, entersReaderIfAvailable: true)
             webViewController.delegate = self
@@ -221,7 +225,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     func saveReadLater() {
         let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(readLater, toFile: Story.ArchiveURLReadLater.path!)
         if !isSuccessfulSave {
-            print("Failed to save read later...")
+            print("Failed to save read later")
         }
     }
     
@@ -267,7 +271,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             readLater.backgroundColor = UIColor.orangeColor()
             buttonArray.append(readLater)
         } else if storyType == "favorites" {
-            let removeFavorite = UITableViewRowAction(style: .Normal, title: "Remove from favorites") { action, index in
+            let removeFavorite = UITableViewRowAction(style: .Normal, title: "Remove") { action, index in
                 print("delete button tapped")
                 self.stories.removeAtIndex(indexPath.row)
                 self.favorites.removeAtIndex(indexPath.row)
@@ -277,7 +281,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             removeFavorite.backgroundColor = UIColor.redColor()
             buttonArray.append(removeFavorite)
         } else if storyType == "readlater" {
-            let removeReadLater = UITableViewRowAction(style: .Normal, title: "Remove from reading list") { action, index in
+            let removeReadLater = UITableViewRowAction(style: .Normal, title: "Remove") { action, index in
                 print("delete button tapped")
                 self.stories.removeAtIndex(indexPath.row)
                 self.readLater.removeAtIndex(indexPath.row)
@@ -302,5 +306,40 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             }
         }
         return false
+    }
+    
+    // MARK: Search
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        filteredStories = stories.filter({ (text) -> Bool in
+            let tmp: NSString = text.title
+            let range = tmp.rangeOfString(searchText, options: NSStringCompareOptions.CaseInsensitiveSearch)
+            return range.location != NSNotFound
+        })
+        if searchText.isEmpty {
+            searchActive = false;
+        } else {
+            searchActive = true;
+        }
+        tableView.reloadData()
+    }
+    
+    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+        searchActive = true;
+        searchBar.showsCancelButton = true
+    }
+    
+    func searchBarTextDidEndEditing(searchBar: UISearchBar) {
+        searchActive = false;
+        searchBar.showsCancelButton = false
+    }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        searchActive = false;
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        searchActive = false;
+        searchBar.resignFirstResponder()
     }
 }
