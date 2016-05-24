@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import DKNightVersion
 import SafariServices
 import Firebase
 
@@ -16,6 +15,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     // MARK: Properties
     var stories = [Story]()
     var filteredStories = [Story]()
+    var readLater = [Story]()
     var firebase: Firebase!
     let baseUrl = "https://hacker-news.firebaseio.com/v0/"
     let storyNumLimit: UInt = 60
@@ -36,6 +36,10 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         navigationController?.navigationBar.barTintColor = Colors.greyishTint
         searchBar.delegate = self
         getStories()
+        
+        if let savedReadLater = loadReadLater() {
+            readLater += savedReadLater
+        }
     }
     
     override func didReceiveMemoryWarning() {
@@ -139,6 +143,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     @IBAction func scrollToTop(sender: UIBarButtonItem) {
         self.tableView.setContentOffset(CGPointMake(0, 0 - self.tableView.contentInset.top), animated: true)
     }
+    
     @IBAction func changeTheme(sender: UIBarButtonItem) {
         if self.navigationItem.leftBarButtonItem!.title == "Night" {
             nightMode()
@@ -184,5 +189,17 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         // Background
         self.view.backgroundColor = UIColor.whiteColor()
         self.refreshControl?.tintColor = UIColor.whiteColor()
+    }
+    
+    //MARK: NSCoding
+    func saveReadLater() {
+        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(readLater, toFile: Story.ArchiveURLReadLater.path!)
+        if !isSuccessfulSave {
+            print("Failed to save stories...")
+        }
+    }
+    
+    func loadReadLater() -> [Story]? {
+        return NSKeyedUnarchiver.unarchiveObjectWithFile(Story.ArchiveURLReadLater.path!) as? [Story]
     }
 }
