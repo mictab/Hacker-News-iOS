@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import DKNightVersion
 import SafariServices
 import Firebase
 
@@ -23,12 +24,6 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     @IBOutlet weak var searchBar: UISearchBar!
     
     @IBOutlet weak var segmentedController: UISegmentedControl!
-    @IBOutlet weak var nestedStackView: UIStackView! {
-        didSet {
-            nestedStackView.layoutMargins = UIEdgeInsets(top: 0.0, left: 7.0, bottom: 0.0, right: 7.0)
-            nestedStackView.layoutMarginsRelativeArrangement = true
-        }
-    }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -45,18 +40,13 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
-    // MARK: - Table view data source
-    
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return 1
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
         return stories.count
     }
     
@@ -64,6 +54,12 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         let identifier = "StoryTableViewCell"
         let cell = tableView.dequeueReusableCellWithIdentifier(identifier, forIndexPath: indexPath) as! StoryTableViewCell
         let story = stories[indexPath.row]
+        
+        if self.navigationItem.leftBarButtonItem!.title == "Day" {
+            cell.backgroundColor = Colors.lightNightTint
+        } else {
+            cell.backgroundColor = UIColor.whiteColor()
+        }
         
         cell.titleLabel.text = story.title
         if story.score > 1 {
@@ -142,5 +138,51 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     @IBAction func scrollToTop(sender: UIBarButtonItem) {
         self.tableView.setContentOffset(CGPointMake(0, 0 - self.tableView.contentInset.top), animated: true)
+    }
+    @IBAction func changeTheme(sender: UIBarButtonItem) {
+        if self.navigationItem.leftBarButtonItem!.title == "Night" {
+            nightMode()
+        } else {
+            dayMode()
+        }
+        self.tableView.reloadData()
+    }
+    
+    func nightMode(){
+        // Navigation Bar
+        self.navigationItem.leftBarButtonItem! = UIBarButtonItem(title: "Day", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(StoryTableViewController.changeTheme(_:)))
+        self.navigationController?.navigationBar.barStyle = UIBarStyle.Black
+        self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName : Colors.greyishTint]
+        self.navigationController?.navigationBar.barTintColor = Colors.nightTint
+        
+        // Search Bar
+        self.searchBar.tintColor = UIColor.whiteColor()
+        self.searchBar.backgroundColor = Colors.nightTint
+        
+        // Segmented Control
+        self.segmentedController.backgroundColor = Colors.nightTint
+        
+        // Background
+        self.view.backgroundColor = Colors.nightTint
+        self.refreshControl?.tintColor = UIColor.whiteColor()
+    }
+    
+    func dayMode(){
+        // Navigation Bar
+        self.navigationItem.leftBarButtonItem! = UIBarButtonItem(title: "Night", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(StoryTableViewController.changeTheme(_:)))
+        self.navigationController?.navigationBar.barStyle = UIBarStyle.Default
+        self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName : UIColor.blackColor()]
+        self.navigationController?.navigationBar.barTintColor = Colors.greyishTint
+        
+        // Search Bar
+        self.searchBar.backgroundColor = UIColor.whiteColor()
+        self.searchBar.tintColor = Colors.hackerTint
+        
+        // Segmented Control
+        self.segmentedController.backgroundColor = UIColor.whiteColor()
+        
+        // Background
+        self.view.backgroundColor = UIColor.whiteColor()
+        self.refreshControl?.tintColor = UIColor.whiteColor()
     }
 }
