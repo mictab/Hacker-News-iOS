@@ -17,7 +17,7 @@ struct StoryType {
     static let ReadLater = "readlater"
 }
 
-class StoryTableViewController: UITableViewController, SFSafariViewControllerDelegate, UISearchBarDelegate {
+class StoryTableViewController: UITableViewController, SFSafariViewControllerDelegate, UISearchBarDelegate, UIViewControllerPreviewingDelegate {
     
     // MARK: Properties
     
@@ -44,6 +44,10 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         super.viewDidLoad()
         if !Reachability.isConnectedToNetwork() {
             configureInternetAlert()
+        }
+        
+        if traitCollection.forceTouchCapability == .Available {
+            registerForPreviewingWithDelegate(self, sourceView: tableView)
         }
         navigationController?.navigationBar.barTintColor = Colors.greyishTint
         searchBar.delegate = self
@@ -283,7 +287,10 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         
         let share = UITableViewRowAction(style: .Normal, title: "Share") { action, index in
             let shareText = "Hey! I just read this awesome story in the Hacker News app!"
-            let url = NSURL(string: story.url!)
+            if story.url == nil {
+                return
+            }
+            let url = story.url
             let vc = UIActivityViewController(activityItems: [shareText, url!], applicationActivities: nil)
             self.navigationController?.presentViewController(vc, animated: true, completion: nil)
             tableView.setEditing(false, animated: true)
@@ -350,5 +357,27 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         searchActive = false;
         searchBar.resignFirstResponder()
+    }
+    
+    // MARK: 3D Touch
+    
+    func previewingContext(previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        guard let highlightedIndexPath = tableView.indexPathForRowAtPoint(location),
+            let cell = tableView.cellForRowAtIndexPath(highlightedIndexPath) else { return nil }
+        let arrayToUse = self.filteredStories.count > 0 ? self.filteredStories : self.stories
+        let cellToOpen = arrayToUse[highlightedIndexPath.row]
+        if cellToOpen.url == nil {
+            return nil
+        }
+        let vc = SFSafariViewController(URL: NSURL(string: cellToOpen.url!)!, entersReaderIfAvailable: true)
+        
+        vc.preferredContentSize = CGSize(width: 0.0, height: 620.0)
+        previewingContext.sourceRect = cell.frame
+        
+        return vc
+    }
+    
+    func previewingContext(previewingContext: UIViewControllerPreviewing, commitViewController viewControllerToCommit: UIViewController) {
+        presentViewController(viewControllerToCommit, animated: true, completion: nil)
     }
 }
