@@ -225,7 +225,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     func saveReadLater() {
         let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(readLater, toFile: Story.ArchiveURLReadLater.path!)
         if !isSuccessfulSave {
-            print("Failed to save read later...")
+            print("Failed to save read later")
         }
     }
     
@@ -271,7 +271,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             readLater.backgroundColor = UIColor.orangeColor()
             buttonArray.append(readLater)
         } else if storyType == "favorites" {
-            let removeFavorite = UITableViewRowAction(style: .Normal, title: "Remove from favorites") { action, index in
+            let removeFavorite = UITableViewRowAction(style: .Normal, title: "Remove") { action, index in
                 print("delete button tapped")
                 self.stories.removeAtIndex(indexPath.row)
                 self.favorites.removeAtIndex(indexPath.row)
@@ -281,7 +281,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             removeFavorite.backgroundColor = UIColor.redColor()
             buttonArray.append(removeFavorite)
         } else if storyType == "readlater" {
-            let removeReadLater = UITableViewRowAction(style: .Normal, title: "Remove from reading list") { action, index in
+            let removeReadLater = UITableViewRowAction(style: .Normal, title: "Remove") { action, index in
                 print("delete button tapped")
                 self.stories.removeAtIndex(indexPath.row)
                 self.readLater.removeAtIndex(indexPath.row)
@@ -308,7 +308,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         return false
     }
     
-    //MARK: Search
+    // MARK: Search
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
         filteredStories = stories.filter({ (text) -> Bool in
             let tmp: NSString = text.title
@@ -320,7 +320,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         } else {
             searchActive = true;
         }
-        self.tableView.reloadData()
+        tableView.reloadData()
     }
     
     func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
