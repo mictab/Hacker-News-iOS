@@ -248,11 +248,11 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     override func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
         var buttonArray = [UITableViewRowAction]()
-        
+        let story = self.filteredStories.count > 0 ? self.filteredStories[indexPath.row] : self.stories[indexPath.row]
         if storyType == "topstories" || storyType == "newstories" {
             let favorite = UITableViewRowAction(style: .Normal, title: "Favorite") { action, index in
-                if !self.listContainsObject(self.stories[indexPath.row], listToSearch: self.favorites) {
-                    self.favorites.append(self.stories[indexPath.row])
+                if !self.listContainsObject(story, listToSearch: self.favorites) {
+                    self.favorites.append(story)
                     tableView.setEditing(false, animated: true)
                     self.saveFavorites()
                 }
@@ -261,8 +261,8 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             buttonArray.append(favorite)
             
             let readLater = UITableViewRowAction(style: .Normal, title: "Read Later") { action, index in
-                if !self.listContainsObject(self.stories[indexPath.row], listToSearch: self.readLater) {
-                    self.readLater.append(self.stories[indexPath.row])
+                if !self.listContainsObject(story, listToSearch: self.readLater) {
+                    self.readLater.append(story)
                     tableView.setEditing(false, animated: true)
                     self.saveReadLater()
                 }
@@ -289,29 +289,15 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             buttonArray.append(removeReadLater)
         }
         
-        if self.filteredStories.isEmpty {
-            let share = UITableViewRowAction(style: .Normal, title: "Share") { action, index in
-                let story = self.stories[indexPath.row]
-                let shareText = "Hey! I just read this awesome story in the Hacker News app!"
-                let url = NSURL(string: story.url!)
-                let vc = UIActivityViewController(activityItems: [shareText, url!], applicationActivities: nil)
-                self.navigationController?.presentViewController(vc, animated: true, completion: nil)
-                tableView.setEditing(false, animated: true)
-            }
-            share.backgroundColor = UIColor.blueColor()
-            buttonArray.append(share)
-        } else {
-            let share = UITableViewRowAction(style: .Normal, title: "Share") { action, index in
-                let story = self.filteredStories[indexPath.row]
-                let shareText = "Hey! I just read this awesome story in the Hacker News app!"
-                let url = NSURL(string: story.url!)
-                let vc = UIActivityViewController(activityItems: [shareText, url!], applicationActivities: nil)
-                self.navigationController?.presentViewController(vc, animated: true, completion: nil)
-                tableView.setEditing(false, animated: true)
-            }
-            share.backgroundColor = UIColor.blueColor()
-            buttonArray.append(share)
+        let share = UITableViewRowAction(style: .Normal, title: "Share") { action, index in
+            let shareText = "Hey! I just read this awesome story in the Hacker News app!"
+            let url = NSURL(string: story.url!)
+            let vc = UIActivityViewController(activityItems: [shareText, url!], applicationActivities: nil)
+            self.navigationController?.presentViewController(vc, animated: true, completion: nil)
+            tableView.setEditing(false, animated: true)
         }
+        share.backgroundColor = UIColor.blueColor()
+        buttonArray.append(share)
         
         return buttonArray.reverse()
     }
