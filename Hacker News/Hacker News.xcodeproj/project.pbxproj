@@ -16,6 +16,7 @@
 		D0DB74011CD75C4A003A6EA6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0DB74001CD75C4A003A6EA6 /* Assets.xcassets */; };
 		D0DB74041CD75C4A003A6EA6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0DB74021CD75C4A003A6EA6 /* LaunchScreen.storyboard */; };
 		D0DB740F1CD75C4A003A6EA6 /* Hacker_NewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0DB740E1CD75C4A003A6EA6 /* Hacker_NewsTests.swift */; };
+		D0E623701CF4D1790082EFBF /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E6236F1CF4D1790082EFBF /* Reachability.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		D0DB740A1CD75C4A003A6EA6 /* Hacker NewsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Hacker NewsTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0DB740E1CD75C4A003A6EA6 /* Hacker_NewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hacker_NewsTests.swift; sourceTree = "<group>"; };
 		D0DB74101CD75C4A003A6EA6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D0E6236F1CF4D1790082EFBF /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +115,7 @@
 				D0DB74001CD75C4A003A6EA6 /* Assets.xcassets */,
 				D0DB74021CD75C4A003A6EA6 /* LaunchScreen.storyboard */,
 				D0DB74051CD75C4A003A6EA6 /* Info.plist */,
+				D0E6236F1CF4D1790082EFBF /* Reachability.swift */,
 			);
 			path = "Hacker News";
 			sourceTree = "<group>";
@@ -282,6 +285,7 @@
 				D0DB73FA1CD75C4A003A6EA6 /* AppDelegate.swift in Sources */,
 				D0468BBF1CD95DBF00DBF854 /* StoryTableViewController.swift in Sources */,
 				D0315A261CDDF1F5007B8B41 /* Story.swift in Sources */,
+				D0E623701CF4D1790082EFBF /* Reachability.swift in Sources */,
 				D0315A281CDDF279007B8B41 /* StoryTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

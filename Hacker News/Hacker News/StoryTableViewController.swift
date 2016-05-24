@@ -38,6 +38,9 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if !Reachability.isConnectedToNetwork() {
+            configureInternetAlert()
+        }
         navigationController?.navigationBar.barTintColor = Colors.greyishTint
         searchBar.delegate = self
         getStories()
@@ -311,6 +314,15 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
             }
         }
         return false
+    }
+    
+    func configureInternetAlert() {
+        print("Internet connection FAILED")
+        let OK = UIAlertAction(title: "OK", style: .Default, handler: nil)
+        let alert = UIAlertController(title: "No Internet Connection", message: "Make sure your device is connected to the internet. This app requires it.",
+                                      preferredStyle: UIAlertControllerStyle.Alert)
+        alert.addAction(OK)
+        self.navigationController?.presentViewController(alert, animated: true, completion: nil)
     }
     
     // MARK: Search
