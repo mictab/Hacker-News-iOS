@@ -173,7 +173,6 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         
         // Background
         self.view.backgroundColor = Colors.nightTint
-        self.refreshControl?.tintColor = UIColor.whiteColor()
     }
     
     func dayMode(){
@@ -192,19 +191,18 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         
         // Background
         self.view.backgroundColor = UIColor.whiteColor()
-        self.refreshControl?.tintColor = UIColor.whiteColor()
     }
     
-    //MARK: Refresh Control
+    // MARK: Refresh Control
     func handleRefresh(refreshControl: UIRefreshControl) {
         //Get new stories
+        refreshControl.beginRefreshing()
         getStories()
-        
         self.tableView.reloadData()
         refreshControl.endRefreshing()
     }
     
-    //MARK: NSCoding
+    // MARK: NSCoding
     func saveReadLater() {
         let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(readLater, toFile: Story.ArchiveURLReadLater.path!)
         if !isSuccessfulSave {
