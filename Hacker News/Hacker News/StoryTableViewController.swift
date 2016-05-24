@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import DKNightVersion
 import SafariServices
 import Firebase
 
@@ -16,13 +15,14 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     // MARK: Properties
     var stories = [Story]()
     var filteredStories = [Story]()
+    var readLater = [Story]()
     var firebase: Firebase!
     let baseUrl = "https://hacker-news.firebaseio.com/v0/"
     let storyNumLimit: UInt = 60
     var storyType: String = "topstories"
     let dateFormatter = NSDateFormatter()
-    @IBOutlet weak var searchBar: UISearchBar!
     
+    @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var segmentedController: UISegmentedControl!
     
     required init?(coder aDecoder: NSCoder) {
@@ -36,6 +36,13 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         navigationController?.navigationBar.barTintColor = Colors.greyishTint
         searchBar.delegate = self
         getStories()
+        
+        if let savedReadLater = loadReadLater() {
+            readLater += savedReadLater
+        }
+        
+        //Refresh control
+        self.refreshControl?.addTarget(self, action: #selector(StoryTableViewController.handleRefresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
     }
     
     override func didReceiveMemoryWarning() {
@@ -139,6 +146,8 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     @IBAction func scrollToTop(sender: UIBarButtonItem) {
         self.tableView.setContentOffset(CGPointMake(0, 0 - self.tableView.contentInset.top), animated: true)
     }
+    
+    //MARK: Nightmode
     @IBAction func changeTheme(sender: UIBarButtonItem) {
         if self.navigationItem.leftBarButtonItem!.title == "Night" {
             nightMode()
@@ -164,7 +173,6 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         
         // Background
         self.view.backgroundColor = Colors.nightTint
-        self.refreshControl?.tintColor = UIColor.whiteColor()
     }
     
     func dayMode(){
@@ -183,6 +191,26 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
         
         // Background
         self.view.backgroundColor = UIColor.whiteColor()
-        self.refreshControl?.tintColor = UIColor.whiteColor()
+    }
+    
+    // MARK: Refresh Control
+    func handleRefresh(refreshControl: UIRefreshControl) {
+        //Get new stories
+        refreshControl.beginRefreshing()
+        getStories()
+        self.tableView.reloadData()
+        refreshControl.endRefreshing()
+    }
+    
+    // MARK: NSCoding
+    func saveReadLater() {
+        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(readLater, toFile: Story.ArchiveURLReadLater.path!)
+        if !isSuccessfulSave {
+            print("Failed to save stories...")
+        }
+    }
+    
+    func loadReadLater() -> [Story]? {
+        return NSKeyedUnarchiver.unarchiveObjectWithFile(Story.ArchiveURLReadLater.path!) as? [Story]
     }
 }

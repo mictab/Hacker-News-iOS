@@ -20,12 +20,12 @@
                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="xaP-fL-6W9">
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="76"/>
                                     <subviews>
-                                        <searchBar contentMode="redraw" misplaced="YES" searchBarStyle="minimal" text="" placeholder="Search" translatesAutoresizingMaskIntoConstraints="NO" id="slW-Om-YBs">
+                                        <searchBar contentMode="redraw" searchBarStyle="minimal" text="" placeholder="Search" translatesAutoresizingMaskIntoConstraints="NO" id="slW-Om-YBs">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                             <color key="barTintColor" white="0.75" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                             <textInputTraits key="textInputTraits" returnKeyType="search"/>
                                         </searchBar>
-                                        <segmentedControl opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="249" misplaced="YES" preservesSuperviewLayoutMargins="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="NdD-Uu-XBr">
+                                        <segmentedControl opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="249" preservesSuperviewLayoutMargins="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="NdD-Uu-XBr">
                                             <rect key="frame" x="0.0" y="44" width="600" height="33"/>
                                             <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
                                             <segments>
