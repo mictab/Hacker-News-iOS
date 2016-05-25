@@ -42,16 +42,19 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        if !Reachability.isConnectedToNetwork() {
-            configureInternetAlert()
-        }
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(StoryTableViewController.networkStatusChanged(_:)), name: ReachabilityStatusChangedNotification, object: nil)
+        Reach().monitorReachabilityChanges()
+        
+        checkNetwork()
+        getStories()
         
         if traitCollection.forceTouchCapability == .Available {
             registerForPreviewingWithDelegate(self, sourceView: tableView)
         }
+        
         navigationController?.navigationBar.barTintColor = Colors.greyishTint
         searchBar.delegate = self
-        getStories()
         
         if let savedReadLater = loadReadLater() {
             readLater = savedReadLater
@@ -114,6 +117,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     }
     
     func getStories() {
+        checkNetwork()
         if storyType == StoryType.Favorite || storyType == StoryType.ReadLater {
             return
         }
@@ -317,7 +321,7 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     func configureInternetAlert() {
         print("Internet connection FAILED")
         let OK = UIAlertAction(title: "OK", style: .Default, handler: nil)
-        let alert = UIAlertController(title: "No Internet Connection", message: "Make sure your device is connected to the internet. This app requires it.",
+        let alert = UIAlertController(title: "No Internet Connection", message: "Make sure your device is connected to the internet.",
                                       preferredStyle: UIAlertControllerStyle.Alert)
         alert.addAction(OK)
         self.navigationController?.presentViewController(alert, animated: true, completion: nil)
@@ -379,5 +383,22 @@ class StoryTableViewController: UITableViewController, SFSafariViewControllerDel
     
     func previewingContext(previewingContext: UIViewControllerPreviewing, commitViewController viewControllerToCommit: UIViewController) {
         presentViewController(viewControllerToCommit, animated: true, completion: nil)
+    }
+    
+    // MARK: Network checks
+    
+    func networkStatusChanged(notification: NSNotification) {
+        let userInfo = notification.userInfo
+        print(userInfo)
+    }
+    
+    func checkNetwork() {
+        let status = Reach().connectionStatus()
+        switch status {
+        case .Unknown, .Offline:
+            configureInternetAlert()
+        default:
+            break
+        }
     }
 }
