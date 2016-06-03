@@ -88,11 +88,6 @@
                                 <action selector="changeTheme:" destination="B4e-bJ-MTh" id="8Up-5g-5t2"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" title="Scroll to top" id="hDV-b6-XH6">
-                            <connections>
-                                <action selector="scrollToTop:" destination="B4e-bJ-MTh" id="RQS-We-q3x"/>
-                            </connections>
-                        </barButtonItem>
                     </navigationItem>
                     <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="2sb-mz-o8y">
                         <autoresizingMask key="autoresizingMask"/>
